@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>X Campus Portal</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #e0f7fa, #fff);
+    }
+    header {
+      background: #00796b;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+      font-size: 2rem;
+      font-weight: bold;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
+      background: #004d40;
+      padding: 0.7rem;
+    }
+    nav button {
+      background: white;
+      border: none;
+      padding: 0.7rem 1.2rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: 0.3s;
+    }
+    nav button:hover {
+      background: #b2dfdb;
+      transform: scale(1.05);
+    }
+    section {
+      display: none;
+      padding: 2rem;
+      animation: fadeIn 0.5s ease-in-out;
+    }
+    .active {
+      display: block;
+    }
+    form {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      max-width: 500px;
+      margin: auto;
+    }
+    input, select, textarea {
+      width: 100%;
+      margin: 0.8rem 0;
+      padding: 0.8rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    button[type="submit"] {
+      background: #00796b;
+      color: white;
+      border: none;
+      padding: 0.8rem 1.2rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    button[type="submit"]:hover {
+      background: #004d40;
+    }
+    .response {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: #e0f2f1;
+      border-left: 5px solid #00796b;
+      font-weight: bold;
+      max-width: 500px;
+      margin: 1rem auto;
+      border-radius: 8px;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <header>X Campus Portal</header>
+  <nav>
+    <button onclick="showSection('dashboard')">🏠 Dashboard</button>
+    <button onclick="showSection('lost')">📤 Lost & Found</button>
+    <button onclick="showSection('id')">📄 ID Card</button>
+    <button onclick="showSection('career')">🎓 Career</button>
+    <button onclick="showSection('college')">🏫 College</button>
+    <button onclick="showSection('auth')">👤 Auth</button>
+    <button onclick="showSection('connect')">🤝 Connect</button>
+    <button onclick="showSection('chatbot')">🤖 Chatbot</button>
+  </nav>
+
+  <section id="dashboard" class="active">
+    <h2 style="text-align:center;">Welcome to X Campus</h2>
+    <p style="text-align:center;">Your digital student companion. Explore features using the navbar above.</p>
+  </section>
+
+  <section id="lost">
+    <h2 style="text-align:center;">Submit Lost Item</h2>
+    <form id="lostForm">
+      <input type="text" name="item_name" placeholder="Item Name" required />
+      <textarea name="item_description" placeholder="Description" required></textarea>
+      <input type="text" name="founder_name" placeholder="Your Name" required />
+      <input type="text" name="founder_number" placeholder="Contact Number" required />
+      <input type="text" name="founder_class" placeholder="Class" required />
+      <input type="text" name="founder_branch" placeholder="Branch" required />
+      <input type="file" name="file" required />
+      <button type="submit">Submit</button>
+    </form>
+    <div class="response" id="lostResponse"></div>
+  </section>
+
+  <script>
+    function showSection(id) {
+      document.querySelectorAll("section").forEach(sec => sec.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
+    }
+
+    document.getElementById("lostForm").onsubmit = async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const resBox = document.getElementById("lostResponse");
+      resBox.innerHTML = "⏳ Submitting...";
+      try {
+        const res = await fetch("http://127.0.0.1:8000/item/lost_item/", {
+          method: "POST",
+          body: formData
+        });
+        const data = await res.json();
+        if (res.ok) {
+          resBox.innerHTML = `✅ ${data.message}`;
+          e.target.reset();
+        } else {
+          resBox.innerHTML = `❌ ${data.detail || "Submission failed."}`;
+        }
+      } catch {
+        resBox.innerHTML = "❌ Server error.";
+      }
+    };
+  </script>
+</body>
+</html>
+  <section id="lostGallery">
+    <h2 style="text-align:center;">Lost Items Gallery</h2>
+    <div id="gallery" style="display:flex; flex-wrap:wrap; justify-content:center; gap:1rem;"></div>
+  </section>
+
+  <section id="id">
+    <h2 style="text-align:center;">Upload Student ID</h2>
+    <form id="idForm">
+      <input type="text" name="name" placeholder="Name" required />
+      <input type="text" name="roll_number" placeholder="Roll Number" required />
+      <input type="text" name="branch" placeholder="Branch" required />
+      <input type="text" name="year" placeholder="Year" required />
+      <input type="text" name="college_name" placeholder="College Name" required />
+      <input type="text" name="college_contact" placeholder="College Contact" required />
+      <input type="password" name="password" placeholder="Set Password" required />
+      <input type="file" name="file" required />
+      <button type="submit">Upload</button>
+    </form>
+    <div class="response" id="idResponse"></div>
+
+    <h2 style="text-align:center;">View Your ID Card</h2>
+    <form id="idViewForm">
+      <input type="text" name="roll_number" placeholder="Roll Number" required />
+      <input type="password" name="password" placeholder="Password" required />
+      <button type="submit">View</button>
+    </form>
+    <div class="response" id="idViewResponse"></div>
+  </section>
+
+  <script>
+    async function loadGallery() {
+      const gallery = document.getElementById("gallery");
+      gallery.innerHTML = "⏳ Loading...";
+      try {
+        const res = await fetch("http://127.0.0.1:8000/item/lost_items/");
+        const items = await res.json();
+        gallery.innerHTML = "";
+        items.forEach(item => {
+          const card = document.createElement("div");
+          card.style = "width:200px; padding:1rem; background:white; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1);";
+          card.innerHTML = `<img src="${item.img}" width="100%" /><h4>${item.name}</h4><p>${item.desc}</p>`;
+          gallery.appendChild(card);
+        });
+      } catch {
+        gallery.innerHTML = "❌ Failed to load items.";
+      }
+    }
+
+    document.getElementById("idForm").onsubmit = async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const resBox = document.getElementById("idResponse");
+      resBox.innerHTML = "⏳ Uploading...";
+      try {
+        const res = await fetch("http://127.0.0.1:8000/idcard/upload/", {
+          method: "POST",
+          body: formData
+        });
+        const data = await res.json();
+        if (res.ok) {
+          resBox.innerHTML = `✅ ${data.message}<br><a href="${data.qr_link}" target="_blank">View QR</a><br><img src="${data.qr_image}" width="100" />`;
+          e.target.reset();
+        } else {
+          resBox.innerHTML = `❌ ${data.detail || "Upload failed."}`;
+        }
+      } catch {
+        resBox.innerHTML = "❌ Server error.";
+      }
+    };
+
+    document.getElementById("idViewForm").onsubmit = async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const resBox = document.getElementById("idViewResponse");
+      resBox.innerHTML = "⏳ Fetching...";
+      try {
+        const res = await fetch("http://127.0.0.1:8000/idcard/view_secure/", {
+          method: "POST",
+          body: formData
+        });
+        const data = await res.json();
+        if (res.ok) {
+          resBox.innerHTML = `
+            ✅ ID Found:<br>
+            Name: ${data.name}<br>
+            Roll: ${data.roll_number}<br>
+            Branch: ${data.branch}<br>
+            Year: ${data.year}<br>
+            College: ${data.college_name}<br>
+            Contact: ${data.college_contact}
+          `;
+          e.target.reset();
+        } else {
+          resBox.innerHTML = `❌ ${data.detail || "Invalid credentials."}`;
+        }
+      } catch {
+        resBox.innerHTML = "❌ Server error.";
+      }
+    };
+  </script>
+   <section id="career">
+    <h2 style="text-align:center;">Career Guidance</h2>
+    <form id="careerForm">
+      <select name="skill" required>
+        <option value="">Select your skill</option>
+        <option value="coding">Coding</option>
+        <option value="design">Design</option>
+        <option value="communication">Communication</option>
+        <option value="data analysis">Data Analysis</option>
+        <option value="machine learning">Machine Learning</option>
+        <option value="video editing">Video Editing</option>
+        <option value="finance">Finance</option>
+      </select>
+      <button type="submit">Suggest Career</button>
+    </form>
+    <div class="response" id="careerResponse"></div>
+  </section>
+
+  <section id="college">
+    <h2 style="text-align:center;">College Recommendation</h2>
+    <form id="collegeForm">
+      <input type="number" name="percentage" placeholder="Your Percentage" required />
+      <select name="skill" required>
+        <option value="">Select Skill</option>
+        <option value="coding">Coding</option>
+        <option value="design">Design</option>
+        <option value="finance">Finance</option>
+      </select>
+      <input type="text" name="city" placeholder="Preferred City" required />
+      <button type="submit">Recommend College</button>
+    </form>
+    <div class="response" id="collegeResponse"></div>
+  </section>
+
+  <section id="auth">
+    <h2 style="text-align:center;">Student Registration</h2>
+    <form id="studentRegForm">
+      <input type="text" name="name" placeholder="Name" required />
+      <input type="email" name="email" placeholder="Email" required />
+      <input type="text" name="phone" placeholder="Phone" required />
+      <input type="text" name="branch" placeholder="Branch" required />
+      <input type="text" name="year" placeholder="Year" required />
+      <input type="password" name="password" placeholder="Password" required />
+      <input type="file" name="photo" required />
+      <button type="submit">Register</button>
+    </form>
+    <div class="response" id="studentRegResponse"></div>
+
+    <h2 style="text-align:center;">Student Login</h2>
+    <form id="studentLoginForm">
+      <input type="email" name="email" placeholder="Email" required />
+      <input type="password" name="password" placeholder="Password" required />
+      <button type="submit">Login</button>
+    </form>
+    <div class="response" id="studentLoginResponse"></div>
+  </section>
+
+  <section id="connect">
+    <h2 style="text-align:center;">Senior Registration</h2>
+    <form id="seniorForm">
+      <input type="text" name="name" placeholder="Name" required />
+      <input type="text" name="branch" placeholder="Branch" required />
+      <input type="text" name="year" placeholder="Year" required />
+      <input type="text" name="skills" placeholder="Skills" required />
+      <input type="text" name="availability" placeholder="Availability" required />
+      <input type="text" name="contact" placeholder="Contact Info" required />
+      <button type="submit">Register</button>
+    </form>
+    <div class="response" id="seniorResponse"></div>
+
+    <h2 style="text-align:center;">Junior Request</h2>
+    <form id="juniorForm">
+      <input type="text" name="name" placeholder="Name" required />
+      <input type="text" name="branch" placeholder="Branch" required />
+      <input type="text" name="year" placeholder="Year" required />
+      <textarea name="query" placeholder="Your Query" required></textarea>
+      <input type="text" name="skill_needed" placeholder="Skill Needed" required />
+      <button type="submit">Request</button>
+    </form>
+    <div class="response" id="juniorResponse"></div>
+
+    <h2 style="text-align:center;">Find Seniors by Skill</h2>
+    <form id="matchForm">
+      <input type="text" name="skill" placeholder="Skill" required />
+      <button type="submit">Find Seniors</button>
+    </form>
+    <div class="response" id="matchResponse"></div>
+  </section>
+
+  <section id="chatbot">
+    <h2 style="text-align:center;">Ask the Campus Bot</h2>
+    <form id="chatForm">
+      <input type="text" name="query" placeholder="Type your question..." required />
+      <button type="submit">Ask</button>
+    </form>
+    <div class="response" id="chatResponse"></div>
+  </section>
+  <script>
+    // Career Suggestion
+    document.getElementById("careerForm").onsubmit = async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const resBox = document.getElementById("careerResponse");
+      resBox.innerHTML = "⏳ Suggesting...";
+      try {
+        const res = await fetch("http://127.0.0.1:8000/career/suggest/", {
+          method: "POST",
+          body: formData
+        });
+        const data = await res.json();
+        resBox.innerHTML = `✅ Recommended Field: ${data.recommended_field}`;
+      } catch {
+        resBox.innerHTML = "❌ Server error.";
+      }
+    };
+
+    // College Recommendation
+    document.getElementById("collegeForm").onsubmit = async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const resBox = document.getElementById("collegeResponse");
+      resBox.innerHTML = "⏳ Recommending...";
+      try {
+        const res = await fetch("http://127.0.0.1:8000/college/recommend/", {
+          method: "POST",
+          body: formData
+        });
+        const data = await res.json();
+        if (data.recommended_college) {
+          resBox.innerHTML = `✅ ${data.college_type} College: ${data.recommended_college}`;
+        } else {
+          resBox.innerHTML = `❌ ${data.message}`;
+        }
+      } catch {
+        resBox.innerHTML = "❌ Server error.";
+      }
+    };
+
+    // Student Register
+    document.getElementById("studentRegForm").onsubmit = async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const resBox = document.getElementById("studentRegResponse");
+      resBox.innerHTML = "⏳ Registering...";
+      try {
+        const res = await fetch("http://127.0.0.1:8000/student/register/", {
+          method: "POST",
+          body: formData
+        });
+        const data = await res.json();
+        resBox.innerHTML = `✅ ${data.message}`;
+        e.target.reset();
+      } catch {
+        resBox.innerHTML = "❌ Server error.";
+      }
+    };
+
+    // Student Login
+    document.getElementById("studentLoginForm").onsubmit = async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const resBox = document.getElementById("studentLoginResponse");
+      resBox.innerHTML = "⏳ Logging in...";
+      try {
+        const res = await fetch("http://127.0.0.1:8000/student/login/", {
+          method: "POST",
+          body: formData
+        });
+        const data = await res.json();
+        if (res.ok) {
+          resBox.innerHTML = `✅ ${data.message}`;
+        } else {
+          resBox.innerHTML = `❌ ${data.detail || "Login failed."}`;
+        }
+      } catch {
+        resBox.innerHTML = "❌ Server error.";
+      }
+    };
+
+    // Senior Register
+    document.getElementById("seniorForm").onsubmit = async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const resBox = document.getElementById("seniorResponse");
+      resBox.innerHTML = "⏳ Registering...";
+      try {
+        const res = await fetch("http://127.0.0.1:8000/connect/register_senior/", {
+          method: "POST",
+          body: formData
+        });
+        const data = await res.json();
+        resBox.innerHTML = `✅ ${data.message}`;
+        e.target.reset();
+      } catch {
+        resBox.innerHTML = "❌ Server error.";
+      }
+    };
+
+    // Junior Request
+    document.getElementById("juniorForm").onsubmit = async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const resBox = document.getElementById("juniorResponse");
+      resBox.innerHTML = "⏳ Submitting...";
+      try {
+        const res = await fetch("http://127.0.0.1:8000/connect/request_junior/", {
+          method: "POST",
+          body: formData
+        });
+        const data = await res.json();
+        resBox.innerHTML = `✅ ${data.message}`;
+        e.target.reset();
+      } catch {
+        resBox.innerHTML = "❌ Server error.";
+      }
+    };
+
+    // Match Seniors
+    document.getElementById("matchForm").onsubmit = async (e) => {
+      e.preventDefault();
+      const skill = new FormData(e.target).get("skill");
+      const resBox = document.getElementById("matchResponse");
+      resBox.innerHTML = "⏳ Searching...";
+      try {
+        const res = await fetch(`http://127.0.0.1:8000/connect/match/?skill=${skill}`);
+        const data = await res.json();
+        if (data.length > 0) {
+          resBox.innerHTML = data.map(s => `✅ ${s.name} (${s.contact}) - ${s.availability}`).join("<br>");
+        } else {
+          resBox.innerHTML = "❌ No seniors found.";
+        }
+      } catch {
+        resBox.innerHTML = "❌ Server error.";
+      }
+    };
+
+    // Chatbot
+    document.getElementById("chatForm").onsubmit = async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const resBox = document.getElementById("chatResponse");
+      resBox.innerHTML = "🤖 Thinking...";
+      try {
+        const res = await fetch("http://127.0.0.1:8000/chatbot/query", {
+          method: "POST",
+          body: formData
+        });
+        const data = await res.json();
+        resBox.innerHTML = `💬 ${data.response}`;
+      } catch {
+        resBox.innerHTML = "❌ Server error.";
+      }
+    };
+
+    // Load gallery on start
+    loadGallery();
+  </script>
+</body>
+</html>
